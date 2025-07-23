@@ -3,7 +3,13 @@ from flask import Flask, request, render_template
 from math import radians, cos, sin, asin, sqrt
 import requests
 
+import openrouteservice
+from openrouteservice import convert
+
 app = Flask(__name__)
+
+ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA5YzhkNjdlOWYyODQ1ZTk5YzBhMzI2MDVkYzM0MDEwIiwiaCI6Im11cm11cjY0In0="
+client = openrouteservice.Client(key=ORS_API_KEY)
 
 # Auction houses with pre-geocoded latitude and longitude
 auction_houses = [
@@ -68,32 +74,63 @@ def index():
             error = "Could not find that address. Please check and try again."
             return render_template('index.html', results=None, error=error)
 
-        distances = []
+        try:
+            # Build locations list: user location first, then auction houses
+            locations = [(user_coords[1], user_coords[0])]  # ORS expects (lon, lat)
+            for house in auction_houses:
+                locations.append((house["lon"], house["lat"]))
 
-        for house in auction_houses:
-            distance = haversine(user_coords[0], user_coords[1], house["lat"], house["lon"])
-            distances.append({
-                "name": house["name"],
-                "address": house["address"],
-                "distance_km": round(distance, 2)
-            })
+            # Get distance matrix from ORS in one API call
+            matrix = client.distance_matrix(
+                locations=locations,
+                profile='driving-car',
+                metrics=['distance']
+            )
 
-        # Sort all by distance
-        sorted_distances = sorted(distances, key=lambda x: x["distance_km"])
+            distances = []
+            # Distances from user (index 0) to each auction house (indexes 1+)
+            for idx, house in enumerate(auction_houses, start=1):
+                dist_meters = matrix['distances'][0][idx]
+                dist_km = round(dist_meters / 1000, 2)
+                distances.append({
+                    "name": house["name"],
+                    "address": house["address"],
+                    "distance_km": dist_km
+                })
 
-        # Get top 4 results
-        nearest_houses = sorted_distances[:4]
+            # Sort by distance ascending and get top 4
+            nearest_houses = sorted(distances, key=lambda x: x["distance_km"])[:4]
 
-        # If less than 4, pad with empty entries to avoid template errors
-        while len(nearest_houses) < 4:
-            nearest_houses.append({
-                "name": "N/A",
-                "address": "N/A",
-                "distance_km": "N/A"
-            })
+            # Pad if less than 4 results (just in case)
+            while len(nearest_houses) < 4:
+                nearest_houses.append({
+                    "name": "N/A",
+                    "address": "N/A",
+                    "distance_km": "N/A"
+                })
+
+        except Exception as e:
+            error = f"Error calculating distances: {e}"
+            # fallback: calculate haversine distances if ORS fails
+            distances = []
+            for house in auction_houses:
+                distance = haversine(user_coords[0], user_coords[1], house["lat"], house["lon"])
+                distances.append({
+                    "name": house["name"],
+                    "address": house["address"],
+                    "distance_km": round(distance, 2)
+                })
+
+            nearest_houses = sorted(distances, key=lambda x: x["distance_km"])[:4]
+
+            while len(nearest_houses) < 4:
+                nearest_houses.append({
+                    "name": "N/A",
+                    "address": "N/A",
+                    "distance_km": "N/A"
+                })
 
     return render_template('index.html', results=nearest_houses, error=error)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
