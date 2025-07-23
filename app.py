@@ -58,31 +58,42 @@ def haversine(lat1, lon1, lat2, lon2):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    nearest = None
+    nearest_houses = []
     error = None
+
     if request.method == 'POST':
         user_address = request.form['address']
         user_coords = geocode_address(user_address)
         if not user_coords:
             error = "Could not find that address. Please check and try again."
-            return render_template('index.html', nearest=None, error=error)
+            return render_template('index.html', results=None, error=error)
 
-        shortest_distance = float('inf')
-        nearest_house = None
+        distances = []
 
         for house in auction_houses:
             distance = haversine(user_coords[0], user_coords[1], house["lat"], house["lon"])
-            if distance < shortest_distance:
-                shortest_distance = distance
-                nearest_house = house
+            distances.append({
+                "name": house["name"],
+                "address": house["address"],
+                "distance_km": round(distance, 2)
+            })
 
-        if nearest_house:
-            nearest = {
-                "name": nearest_house["name"],
-                "address": nearest_house["address"],
-                "distance_km": round(shortest_distance, 2)
-            }
-    return render_template('index.html', nearest=nearest, error=error)
+        # Sort all by distance
+        sorted_distances = sorted(distances, key=lambda x: x["distance_km"])
+
+        # Get top 4 results
+        nearest_houses = sorted_distances[:4]
+
+        # If less than 4, pad with empty entries to avoid template errors
+        while len(nearest_houses) < 4:
+            nearest_houses.append({
+                "name": "N/A",
+                "address": "N/A",
+                "distance_km": "N/A"
+            })
+
+    return render_template('index.html', results=nearest_houses, error=error)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
