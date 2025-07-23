@@ -11,10 +11,32 @@
         <input type="submit" value="Find Nearest">
     </form>
 
-    {% if nearest %}
-        <p><strong>Nearest Auction House:</strong> {{ nearest }}</p>
-    {% elif error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
+{% if results %}
+  <h2>Closest Auction Houses:</h2>
+  <ol>
+    <li>
+      <strong>{{ results[0].name }}</strong><br>
+      Address: {{ results[0].address }}<br>
+      Distance: {{ results[0].distance_km }} km
+    </li>
+    <li>
+      <strong>{{ results[1].name }}</strong><br>
+      Address: {{ results[1].address }}<br>
+      Distance: {{ results[1].distance_km }} km
+    </li>
+    <li>
+      <strong>{{ results[2].name }}</strong><br>
+      Address: {{ results[2].address }}<br>
+      Distance: {{ results[2].distance_km }} km
+    </li>
+    <li>
+      <strong>{{ results[3].name }}</strong><br>
+      Address: {{ results[3].address }}<br>
+      Distance: {{ results[3].distance_km }} km
+    </li>
+  </ol>
+{% endif %}
+
+
 </body>
 </html>
