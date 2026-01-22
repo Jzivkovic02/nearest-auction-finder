@@ -6,8 +6,8 @@ import openrouteservice
 
 app = Flask(__name__)
 
-# 🔐 IMPORTANT: Set this as an environment variable in production
-ORS_API_KEY = os.environ.get("ORS_API_KEY")
+# 🔑 OpenRouteService API Key (as requested)
+ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA5YzhkNjdlOWYyODQ1ZTk5YzBhMzI2MDVkYzM0MDEwIiwiaCI6Im11cm11cjY0In0="
 client = openrouteservice.Client(key=ORS_API_KEY)
 
 # =========================
@@ -16,7 +16,7 @@ client = openrouteservice.Client(key=ORS_API_KEY)
 
 auction_houses = [
 
-    # -------- PICKLES LOCATIONS (UNCHANGED) --------
+    # -------- PICKLES LOCATIONS --------
     {"name": "Pickle's Fyshwick", "address": "179 Gladstone Street, Fyshwick, ACT, 2609", "lat": -35.3386743, "lon": 149.1625838},
     {"name": "Pickle's Belmore", "address": "36-40 Harp Street, Belmore, NSW 2192", "lat": -33.9241295, "lon": 151.0930431},
     {"name": "Pickle's Dubbo", "address": "21L Yarrandale Road, Dubbo, NSW 2830", "lat": -32.2502921, "lon": 148.5945432},
