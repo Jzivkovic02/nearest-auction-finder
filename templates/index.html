@@ -38,26 +38,27 @@
 
     form {
         display: flex;
-        gap: 10px;
+        flex-direction: column;
+        gap: 12px;
         margin-bottom: 20px;
     }
 
     label {
-        flex: 1 0 120px;
         font-weight: 600;
-        padding-top: 8px;
         color: #555;
     }
 
-    input[type="text"] {
-        flex: 2 1 auto;
+    input[type="text"],
+    input[type="number"] {
         padding: 10px 12px;
         font-size: 16px;
         border: 2px solid #ddd;
         border-radius: 6px;
         transition: border-color 0.3s ease;
     }
-    input[type="text"]:focus {
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
         outline: none;
         border-color: #0078d7;
         box-shadow: 0 0 5px #0078d7aa;
@@ -75,6 +76,14 @@
     }
     input[type="submit"]:hover {
         background-color: #005a9e;
+    }
+
+    .note {
+        background-color: #e8f4ff;
+        border-left: 5px solid #0078d7;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-weight: 600;
     }
 
     .error {
@@ -118,7 +127,7 @@
         label {
             padding-top: 0;
         }
-        input[type="text"], input[type="submit"] {
+        input[type="text"], input[type="number"], input[type="submit"] {
             width: 100%;
         }
     }
@@ -130,8 +139,16 @@
     <form method="post" action="/">
         <label for="address">Customer Address:</label>
         <input type="text" id="address" name="address" placeholder="Enter your address" required />
+
+        <label for="outstanding">Outstanding Loan Balance (optional):</label>
+        <input type="number" id="outstanding" name="outstanding" placeholder="Enter amount (e.g. 45000)">
+
         <input type="submit" value="Find Nearest" />
     </form>
+
+    {% if note %}
+    <div class="note">{{ note }}</div>
+    {% endif %}
 
     {% if error %}
     <div class="error">{{ error }}</div>
