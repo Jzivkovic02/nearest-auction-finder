@@ -11,7 +11,7 @@ client = openrouteservice.Client(key=ORS_API_KEY)
 
 # Auction houses with pre-geocoded latitude and longitude
 auction_houses = [
-    # --- Pickles ---
+    # Pickles locations
     {"name": "Pickle's Fyshwick", "address": "179 Gladstone Street, Fyshwick, ACT, 2609", "lat": -35.3386743, "lon": 149.1625838},
     {"name": "Pickle's Belmore", "address": "36-40 Harp Street, Belmore, NSW 2192", "lat": -33.9241295, "lon": 151.0930431},
     {"name": "Pickle's Dubbo", "address": "21L Yarrandale Road, Dubbo, NSW 2830", "lat": -32.2502921, "lon": 148.5945432},
@@ -28,9 +28,9 @@ auction_houses = [
     {"name": "Pickle's Sunshine", "address": "41–45 McIntyre Road, Sunshine VIC, 3020", "lat": -37.7910133, "lon": 144.8114056},
     {"name": "Pickle's Bibra Lake", "address": "Corner Phoenix & Sudlow Roads, Bibra Lake, WA, 6163", "lat": -32.1265221, "lon": 115.8104582},
 
-    # --- Slattery (updated) ---
+    # Slattery updated locations
     {"name": "Slattery's Milperra (Sydney)", "address": "2 Ashford Avenue, Milperra, NSW, 2214", "lat": -33.9189883, "lon": 150.9557699},
-    {"name": "Slattery's Hexham (Newcastle)", "address": "230 Old Maitland Road, Hexham, NSW 2322", "lat": -32.8495152, "lon": 151.6697654},
+    {"name": "Slattery's Hexham (Newcastle)", "address": "230 Old Maitland Road, Hexham, NSW, 2322", "lat": -32.8495152, "lon": 151.6697654},
     {"name": "Slattery's Dandenong South (Melbourne)", "address": "140–152 National Drive, Dandenong South, VIC, 3175", "lat": -38.031341, "lon": 145.213222},
     {"name": "Slattery's Pinkenba (Brisbane)", "address": "131 Main Beach Road, Pinkenba, QLD 4008", "lat": -27.420635, "lon": 153.115622},
     {"name": "Slattery's Roma", "address": "142 Roma Downs Road, Roma QLD 4455", "lat": -26.5731456, "lon": 148.7963721},
@@ -55,15 +55,29 @@ CAPITALS = {
     "TAS": (-42.8821, 147.3272)
 }
 
+# --- ADDED: State name normalization for rubric ---
+STATE_MAP = {
+    "New South Wales": "NSW",
+    "Victoria": "VIC",
+    "Queensland": "QLD",
+    "South Australia": "SA",
+    "Western Australia": "WA",
+    "Tasmania": "TAS",
+    "Northern Territory": "NT",
+    "Australian Capital Territory": "ACT"
+}
+
 def geocode_address(address):
     url = "https://nominatim.openstreetmap.org/search"
     params = {"q": address, "format": "json", "limit": 1, "addressdetails": 1}
     headers = {"User-Agent": "Jzivkovic461@gmail.com"}
-    r = requests.get(url, params=params, headers=headers)
-    data = r.json()
+    response = requests.get(url, params=params, headers=headers)
+    data = response.json()
     if data:
-        state = data[0]["address"].get("state_code") or data[0]["address"].get("state")
-        return float(data[0]["lat"]), float(data[0]["lon"]), state
+        addr = data[0]["address"]
+        state_name = addr.get("state")
+        state_code = STATE_MAP.get(state_name, state_name)
+        return float(data[0]["lat"]), float(data[0]["lon"]), state_code
     return None
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -82,8 +96,8 @@ def index():
     if request.method == 'POST':
         user_address = request.form['address']
         outstanding = request.form.get('outstanding')
-        geo = geocode_address(user_address)
 
+        geo = geocode_address(user_address)
         if not geo:
             error = "Could not find that address. Please check and try again."
             return render_template('index.html', results=None, error=error)
@@ -96,7 +110,7 @@ def index():
             if haversine(lat, lon, cap_lat, cap_lon) <= 60:
                 is_metro = True
 
-        # Rubric logic
+        # --- Rubric logic ---
         if outstanding:
             amount = float(outstanding)
             if state in ["NSW", "VIC", "QLD"] and is_metro:
