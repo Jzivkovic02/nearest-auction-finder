@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Nearest Auction House Finder</title>
 <style>
-    /* Reset some basics */
     * {
         box-sizing: border-box;
     }
@@ -74,6 +73,7 @@
         font-weight: 700;
         transition: background-color 0.3s ease;
     }
+
     input[type="submit"]:hover {
         background-color: #005a9e;
     }
@@ -86,7 +86,7 @@
         font-weight: 600;
     }
 
-    /* ⭐ NEW: Soft warning (borderline cases) */
+    /* ⭐ Soft warning */
     .warning {
         background-color: #fff4e5;
         border-left: 5px solid #ff9800;
@@ -118,34 +118,19 @@
         padding: 15px 20px;
         border-radius: 8px;
         box-shadow: 0 3px 6px rgba(0,0,0,0.05);
-        transition: background-color 0.3s ease;
-    }
-
-    ol li:hover {
-        background-color: #d9eaff;
     }
 
     ol li strong {
         color: #0078d7;
         font-size: 18px;
     }
-
-    @media (max-width: 480px) {
-        form {
-            flex-direction: column;
-        }
-        label {
-            padding-top: 0;
-        }
-        input[type="text"], input[type="number"], input[type="submit"] {
-            width: 100%;
-        }
-    }
 </style>
 </head>
+
 <body>
 <div class="container">
     <h2>Find Nearest Auction House</h2>
+
     <form method="post" action="/">
         <label for="address">Customer Address:</label>
         <input type="text" id="address" name="address" placeholder="Enter your address" required />
@@ -160,10 +145,21 @@
     <div class="note">{{ note }}</div>
     {% endif %}
 
-    <!-- ⭐ NEW: Borderline soft warning -->
     {% if soft_warning %}
     <div class="warning">
         ⚠️ {{ soft_warning }}
+    </div>
+    {% endif %}
+
+    <!-- ⭐ Overlay v2.2: Decision transparency -->
+    {% if decision_details %}
+    <div class="note">
+        <strong>Why this decision?</strong>
+        <ul>
+            {% for item in decision_details %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
     </div>
     {% endif %}
 
