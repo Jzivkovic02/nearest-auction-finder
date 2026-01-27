@@ -9,6 +9,7 @@ app = Flask(__name__)
 ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA5YzhkNjdlOWYyODQ1ZTk5YzBhMzI2MDVkYzM0MDEwIiwiaCI6Im11cm11cjY0In0="
 client = openrouteservice.Client(key=ORS_API_KEY)
 
+# -------------------- Auction Houses --------------------
 auction_houses = [
     # Pickles
     {"name": "Pickle's Fyshwick", "address": "179 Gladstone Street, Fyshwick, ACT, 2609", "lat": -35.3386743, "lon": 149.1625838},
@@ -89,6 +90,7 @@ def index():
     nearest_houses = []
     note = None
     warning = None
+    decision_details = []
     error = None
 
     if request.method == 'POST':
@@ -101,8 +103,8 @@ def index():
             return render_template('index.html', results=None, error=error)
 
         lat, lon, state = geo
-        is_metro = False
         metro_distance = None
+        is_metro = False
 
         if state in CAPITALS:
             cap_lat, cap_lon = CAPITALS[state]
@@ -113,8 +115,8 @@ def index():
         if outstanding:
             amount = float(outstanding)
 
-            # ---- Borderline warning logic ----
-            if (59000 <= amount <= 61000) or (metro_distance and 55 <= metro_distance <= 65):
+            # ⭐ UPDATED borderline thresholds (50–70km)
+            if (59000 <= amount <= 61000) or (metro_distance and 50 <= metro_distance <= 70):
                 warning = "This case is close to a rubric threshold. Please double-check before issuing instructions."
 
             if state in ["NSW", "VIC", "QLD"] and is_metro:
@@ -126,6 +128,15 @@ def index():
                 note = f"This vehicle is in {state} Regional. Please advise agent to deliver vehicle to a Pickles Auction House."
             elif state in ["SA", "ACT", "WA", "NT", "TAS"]:
                 note = f"This vehicle is in {state}. Please advise agent to deliver vehicle to a Pickles Auction House."
+
+            # -------- Overlay v2.2: WHY breakdown --------
+            decision_details = [
+                f"State detected: {state}",
+                f"Distance from capital: {round(metro_distance, 2)} km" if metro_distance else "Capital distance not available",
+                "Metro classification: Metro" if is_metro else "Metro classification: Regional",
+                f"Outstanding balance: ${amount:,.0f}",
+                "Applicable rubric: NSW / VIC / QLD – Metro" if state in ["NSW", "VIC", "QLD"] and is_metro else "Applicable rubric: Non-metro / Other states"
+            ]
 
         try:
             locations = [(lon, lat)] + [(h["lon"], h["lat"]) for h in auction_houses]
@@ -160,7 +171,8 @@ def index():
         'index.html',
         results=nearest_houses,
         note=note,
-        soft_warning=warning,  # ⭐ FIX: matches HTML
+        soft_warning=warning,
+        decision_details=decision_details,
         error=error
     )
 
