@@ -113,9 +113,9 @@ def index():
         if outstanding:
             amount = float(outstanding)
 
-            # ---- Borderline warning logic (ADDED) ----
+            # ---- Borderline warning logic ----
             if (59000 <= amount <= 61000) or (metro_distance and 55 <= metro_distance <= 65):
-                warning = "⚠️ This case is close to a rubric threshold. Please double-check before issuing instructions."
+                warning = "This case is close to a rubric threshold. Please double-check before issuing instructions."
 
             if state in ["NSW", "VIC", "QLD"] and is_metro:
                 if amount < 60000:
@@ -160,7 +160,7 @@ def index():
         'index.html',
         results=nearest_houses,
         note=note,
-        warning=warning,
+        soft_warning=warning,  # ⭐ FIX: matches HTML
         error=error
     )
 
