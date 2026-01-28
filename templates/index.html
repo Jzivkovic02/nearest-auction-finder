@@ -86,7 +86,7 @@
         font-weight: 600;
     }
 
-    /* ⭐ Soft warning */
+    /* Soft warning */
     .warning {
         background-color: #fff4e5;
         border-left: 5px solid #ff9800;
@@ -124,6 +124,45 @@
         color: #0078d7;
         font-size: 18px;
     }
+
+    /* Collapsible */
+    .collapsible {
+        background-color: #0078d7;
+        color: white;
+        cursor: pointer;
+        padding: 10px 15px;
+        width: 100%;
+        border: none;
+        border-radius: 6px;
+        text-align: left;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        transition: background-color 0.3s ease;
+    }
+
+    .collapsible:hover {
+        background-color: #005a9e;
+    }
+
+    .content {
+        padding: 0 15px;
+        display: none;
+        overflow: hidden;
+        background-color: #e8f4ff;
+        border-left: 5px solid #0078d7;
+        border-radius: 0 0 6px 6px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) {
+        form {
+            flex-direction: column;
+        }
+        input[type="text"], input[type="number"], input[type="submit"] {
+            width: 100%;
+        }
+    }
 </style>
 </head>
 
@@ -151,10 +190,10 @@
     </div>
     {% endif %}
 
-    <!-- ⭐ Overlay v2.2: Decision transparency -->
+    <!-- ⭐ Overlay v2.2 collapsible -->
     {% if decision_details %}
-    <div class="note">
-        <strong>Why this decision?</strong>
+    <button type="button" class="collapsible">Why this decision?</button>
+    <div class="content">
         <ul>
             {% for item in decision_details %}
             <li>{{ item }}</li>
@@ -180,5 +219,21 @@
     </ol>
     {% endif %}
 </div>
+
+<script>
+    // Collapsible dropdown logic
+    var coll = document.getElementsByClassName("collapsible");
+    for (var i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "block";
+            }
+        });
+    }
+</script>
 </body>
 </html>
