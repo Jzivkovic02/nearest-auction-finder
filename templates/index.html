@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nearest Auction House Finder v2.2</title>
+<title>Nearest Auction House Finder</title>
 <style>
-    /* Reset basics */
     * { box-sizing: border-box; }
 
     body {
-        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f5f7fa, #e0e7ff);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7fa;
         margin: 0;
         padding: 20px;
         display: flex;
@@ -22,8 +21,8 @@
         max-width: 700px;
         width: 100%;
         padding: 30px 40px;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
     }
 
     h2 {
@@ -48,130 +47,111 @@
 
     input[type="text"],
     input[type="number"] {
-        padding: 12px 14px;
+        padding: 10px 12px;
         font-size: 16px;
         border: 2px solid #ddd;
-        border-radius: 8px;
-        transition: all 0.3s ease;
+        border-radius: 6px;
+        transition: border-color 0.3s ease;
     }
 
     input[type="text"]:focus,
     input[type="number"]:focus {
         outline: none;
         border-color: #0078d7;
-        box-shadow: 0 0 8px #0078d7aa;
+        box-shadow: 0 0 5px #0078d7aa;
     }
 
     input[type="submit"] {
         background-color: #0078d7;
         border: none;
         color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
+        padding: 10px 24px;
+        border-radius: 6px;
         cursor: pointer;
         font-weight: 700;
-        transition: all 0.3s ease;
+        transition: background-color 0.3s ease;
     }
-    input[type="submit"]:hover {
-        background-color: #005a9e;
-    }
-
-    /* Auction House Cards */
-    ol {
-        padding-left: 0;
-        color: #444;
-        list-style: none;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    ol li {
-        background: #f0f8ff;
-        margin: 0;
-        padding: 18px 22px;
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        transition: all 0.3s ease;
-    }
-
-    ol li:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-    }
-
-    ol li strong {
-        color: #0078d7;
-        font-size: 18px;
-    }
-
-    /* Notes & Warnings */
-    .note, .warning {
-        border-left: 5px solid;
-        padding: 15px;
-        margin-bottom: 20px;
-        font-weight: 600;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-    }
+    input[type="submit"]:hover { background-color: #005a9e; }
 
     .note {
-        background-color: #e8f4ff;
-        border-color: #0078d7;
+        background: linear-gradient(90deg, #e8f4ff, #d0eaff);
+        border-left: 5px solid #0078d7;
+        padding: 15px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        font-size: 16px;
+        border-radius: 6px;
     }
 
     .warning {
         background-color: #fff4e5;
-        border-color: #ff9800;
+        border-left: 5px solid #ff9800;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-weight: 600;
         color: #8a5a00;
+        border-radius: 6px;
     }
 
     .error {
         background-color: #ffe6e6;
         border: 1px solid #ff4d4d;
         color: #a70000;
-        padding: 12px 16px;
+        padding: 10px 15px;
         border-radius: 6px;
         margin-bottom: 20px;
-        font-weight: 600;
         text-align: center;
+        font-weight: 600;
     }
 
-    /* Collapsible “Why this decision” box */
+    /* Collapsible */
     .collapsible {
-        background-color: #0078d7;
-        color: white;
+        background-color: #f0f8ff;
+        color: #0078d7;
         cursor: pointer;
-        padding: 10px 15px;
+        padding: 12px 18px;
         width: 100%;
         border: none;
         text-align: left;
         outline: none;
         font-size: 16px;
+        font-weight: 600;
         border-radius: 6px;
         margin-bottom: 10px;
-        transition: all 0.3s ease;
+        transition: background 0.3s ease;
     }
-    .collapsible:hover {
-        background-color: #005a9e;
-    }
+    .collapsible:hover { background-color: #d9eaff; }
+
     .content {
-        padding: 0 15px 15px 15px;
+        padding: 0 18px;
         display: none;
         overflow: hidden;
-        background-color: #f0f8ff;
-        border-radius: 0 0 8px 8px;
-        font-weight: 500;
+        background-color: #f9fbff;
+        border-left: 3px solid #0078d7;
+        margin-bottom: 15px;
+        border-radius: 0 6px 6px 0;
     }
 
+    .content ul { margin: 10px 0; padding-left: 20px; }
+
+    ol {
+        padding-left: 20px;
+        color: #444;
+    }
+    ol li {
+        background-color: #f0f8ff;
+        margin-bottom: 15px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        transition: background-color 0.3s ease;
+    }
+    ol li:hover { background-color: #d9eaff; }
+    ol li strong { color: #0078d7; font-size: 18px; }
+
     @media (max-width: 480px) {
-        input[type="text"], input[type="number"], input[type="submit"] {
-            width: 100%;
-        }
-        ol {
-            display: flex;
-            flex-direction: column;
-        }
+        form { flex-direction: column; }
+        input[type="text"], input[type="number"], input[type="submit"] { width: 100%; }
     }
 </style>
 </head>
@@ -188,21 +168,36 @@
         <input type="submit" value="Find Nearest" />
     </form>
 
+    <!-- ALWAYS VISIBLE NOTE -->
     {% if note %}
-        <button type="button" class="collapsible">Why this decision?</button>
-        <div class="content">
-            <div class="note">{{ note }}</div>
-        </div>
+    <div class="note">{{ note }}</div>
     {% endif %}
 
+    <!-- ⭐ NEW: Soft warning -->
     {% if soft_warning %}
-    <div class="warning">
-        ⚠️ {{ soft_warning }}
-    </div>
+    <div class="warning">⚠️ {{ soft_warning }}</div>
     {% endif %}
 
     {% if error %}
     <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <!-- ⭐ Collapsible "Why this decision?" -->
+    {% if note %}
+    <button type="button" class="collapsible">Why this decision?</button>
+    <div class="content">
+        <p>⭐ OVERLAY v2.2 – “Why?” Breakdown (Compliance gold)</p>
+        <ul>
+            {% if metro_distance is defined %}
+            <li>Metro status: {% if metro_distance <= 60 %}Within {{ metro_distance }} km of capital{% else %}Regional{% endif %}</li>
+            {% endif %}
+            {% if outstanding is defined %}
+            <li>Balance threshold: ${{ outstanding }}</li>
+            {% endif %}
+            <li>Applicable policy: Based on {{ state }} rubric</li>
+        </ul>
+        <p><strong>Perfect for:</strong> Training | Audit | Disputes</p>
+    </div>
     {% endif %}
 
     {% if results %}
@@ -221,11 +216,11 @@
 
 <script>
     // Collapsible functionality
-    const collapsibles = document.getElementsByClassName("collapsible");
-    for (let i = 0; i < collapsibles.length; i++) {
-        collapsibles[i].addEventListener("click", function() {
+    var coll = document.getElementsByClassName("collapsible");
+    for (var i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
             this.classList.toggle("active");
-            const content = this.nextElementSibling;
+            var content = this.nextElementSibling;
             if (content.style.display === "block") {
                 content.style.display = "none";
             } else {
