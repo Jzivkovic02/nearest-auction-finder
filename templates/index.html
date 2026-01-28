@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Nearest Auction House Finder</title>
 <style>
-    * { box-sizing: border-box; }
+    * {
+        box-sizing: border-box;
+    }
 
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -18,11 +20,11 @@
 
     .container {
         background: white;
-        max-width: 700px;
+        max-width: 600px;
         width: 100%;
         padding: 30px 40px;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
 
     h2 {
@@ -71,18 +73,20 @@
         font-weight: 700;
         transition: background-color 0.3s ease;
     }
-    input[type="submit"]:hover { background-color: #005a9e; }
 
-    .note {
-        background: linear-gradient(90deg, #e8f4ff, #d0eaff);
-        border-left: 5px solid #0078d7;
-        padding: 15px;
-        margin-bottom: 15px;
-        font-weight: 600;
-        font-size: 16px;
-        border-radius: 6px;
+    input[type="submit"]:hover {
+        background-color: #005a9e;
     }
 
+    .note {
+        background-color: #e8f4ff;
+        border-left: 5px solid #0078d7;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    /* ⭐ Soft warning */
     .warning {
         background-color: #fff4e5;
         border-left: 5px solid #ff9800;
@@ -90,7 +94,6 @@
         margin-bottom: 20px;
         font-weight: 600;
         color: #8a5a00;
-        border-radius: 6px;
     }
 
     .error {
@@ -104,60 +107,30 @@
         font-weight: 600;
     }
 
-    /* Collapsible */
-    .collapsible {
-        background-color: #f0f8ff;
-        color: #0078d7;
-        cursor: pointer;
-        padding: 12px 18px;
-        width: 100%;
-        border: none;
-        text-align: left;
-        outline: none;
-        font-size: 16px;
-        font-weight: 600;
-        border-radius: 6px;
-        margin-bottom: 10px;
-        transition: background 0.3s ease;
-    }
-    .collapsible:hover { background-color: #d9eaff; }
-
-    .content {
-        padding: 0 18px;
-        display: none;
-        overflow: hidden;
-        background-color: #f9fbff;
-        border-left: 3px solid #0078d7;
-        margin-bottom: 15px;
-        border-radius: 0 6px 6px 0;
-    }
-
-    .content ul { margin: 10px 0; padding-left: 20px; }
-
     ol {
         padding-left: 20px;
         color: #444;
     }
+
     ol li {
         background-color: #f0f8ff;
         margin-bottom: 15px;
         padding: 15px 20px;
         border-radius: 8px;
         box-shadow: 0 3px 6px rgba(0,0,0,0.05);
-        transition: background-color 0.3s ease;
     }
-    ol li:hover { background-color: #d9eaff; }
-    ol li strong { color: #0078d7; font-size: 18px; }
 
-    @media (max-width: 480px) {
-        form { flex-direction: column; }
-        input[type="text"], input[type="number"], input[type="submit"] { width: 100%; }
+    ol li strong {
+        color: #0078d7;
+        font-size: 18px;
     }
 </style>
 </head>
+
 <body>
 <div class="container">
     <h2>Find Nearest Auction House</h2>
+
     <form method="post" action="/">
         <label for="address">Customer Address:</label>
         <input type="text" id="address" name="address" placeholder="Enter your address" required />
@@ -168,36 +141,30 @@
         <input type="submit" value="Find Nearest" />
     </form>
 
-    <!-- ALWAYS VISIBLE NOTE -->
     {% if note %}
     <div class="note">{{ note }}</div>
     {% endif %}
 
-    <!-- ⭐ NEW: Soft warning -->
     {% if soft_warning %}
-    <div class="warning">⚠️ {{ soft_warning }}</div>
+    <div class="warning">
+        ⚠️ {{ soft_warning }}
+    </div>
+    {% endif %}
+
+    <!-- ⭐ Overlay v2.2: Decision transparency -->
+    {% if decision_details %}
+    <div class="note">
+        <strong>Why this decision?</strong>
+        <ul>
+            {% for item in decision_details %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
     {% endif %}
 
     {% if error %}
     <div class="error">{{ error }}</div>
-    {% endif %}
-
-    <!-- ⭐ Collapsible "Why this decision?" -->
-    {% if note %}
-    <button type="button" class="collapsible">Why this decision?</button>
-    <div class="content">
-        <p>⭐ OVERLAY v2.2 – “Why?” Breakdown (Compliance gold)</p>
-        <ul>
-            {% if metro_distance is defined %}
-            <li>Metro status: {% if metro_distance <= 60 %}Within {{ metro_distance }} km of capital{% else %}Regional{% endif %}</li>
-            {% endif %}
-            {% if outstanding is defined %}
-            <li>Balance threshold: ${{ outstanding }}</li>
-            {% endif %}
-            <li>Applicable policy: Based on {{ state }} rubric</li>
-        </ul>
-        <p><strong>Perfect for:</strong> Training | Audit | Disputes</p>
-    </div>
     {% endif %}
 
     {% if results %}
@@ -213,21 +180,5 @@
     </ol>
     {% endif %}
 </div>
-
-<script>
-    // Collapsible functionality
-    var coll = document.getElementsByClassName("collapsible");
-    for (var i = 0; i < coll.length; i++) {
-        coll[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var content = this.nextElementSibling;
-            if (content.style.display === "block") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "block";
-            }
-        });
-    }
-</script>
 </body>
 </html>
